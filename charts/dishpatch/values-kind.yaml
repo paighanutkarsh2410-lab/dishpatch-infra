@@ -1,11 +1,11 @@
 # Local kind cluster. Argo CD deploys the chart with this file.
 image:
   # Tag and digests are updated by pull requests from dishpatch-app's CI.
-  tag: "ffc1b426ea03bee25458a2345826a58b9770c7e6"
+  tag: "06d216366480e668dccb21e628e00e06f4a6194f"
   digests:
-    dishpatch-backend: "sha256:fcd59ea86fbcc525615856c0d02f93bfd4f896bee25e7fffee17d7d4a7606c94"
-    dishpatch-frontend: "sha256:ea7bd64f9b81210c69eef953482fe543c84c02793dd00576df785fc3e326888b"
-    dishpatch-partner: "sha256:02ca1b4f9b1ae57915bbe4954787fcc601abf01cf2a282c864a1d1340d366847"
+    dishpatch-backend: "sha256:eed312996bf79c97a41d9218c692686febc128e6d5a9b688f322ad79d8473b85"
+    dishpatch-frontend: "sha256:5e237c4560123c8e03c5233800bb5f4374b63eed1367175c33b5d8f41df5969f"
+    dishpatch-partner: "sha256:bdfe2297c3d69ec27c7389dcd098bbdd9952d6ed1e03ccbab370aeec0edb8b6b"
 
 web:
   frontend:
