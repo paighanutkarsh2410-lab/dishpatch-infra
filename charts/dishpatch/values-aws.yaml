@@ -2,11 +2,11 @@
 # sets ingress.partnerHost from the server IP.
 image:
   # Tag and digests are updated by pull requests from dishpatch-app's CI.
-  tag: "85063bbf2291d6d8f58b0715a58fa3a6aa3c18f7"
+  tag: "ffc1b426ea03bee25458a2345826a58b9770c7e6"
   digests:
-    dishpatch-backend: "sha256:a54cee344a83a8c48e52b2bcdee0ac3d70e4f0f0f0c349d1b681a2e9f7b81e65"
-    dishpatch-frontend: "sha256:990c22c7b7c7cb4679fec340ea6e2dd0fee9aacba3575e5894851df071cdcb26"
-    dishpatch-partner: "sha256:533f674e2bedfc3cc0947404f6eae34fc01c3c850b5f4db43de04f544b161eee"
+    dishpatch-backend: "sha256:fcd59ea86fbcc525615856c0d02f93bfd4f896bee25e7fffee17d7d4a7606c94"
+    dishpatch-frontend: "sha256:ea7bd64f9b81210c69eef953482fe543c84c02793dd00576df785fc3e326888b"
+    dishpatch-partner: "sha256:02ca1b4f9b1ae57915bbe4954787fcc601abf01cf2a282c864a1d1340d366847"
 
 ingress:
   enabled: true
