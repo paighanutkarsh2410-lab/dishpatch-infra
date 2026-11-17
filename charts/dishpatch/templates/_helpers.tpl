@@ -1,12 +1,12 @@
 {{/* Labels shared by every object. */}}
-{{- define "swiggy.labels" -}}
-app.kubernetes.io/part-of: swiggy-devsecops
+{{- define "dishpatch.labels" -}}
+app.kubernetes.io/part-of: dishpatch
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
 {{- end }}
 
 {{/* Full image reference for one of the app's images. */}}
-{{- define "swiggy.image" -}}
+{{- define "dishpatch.image" -}}
 {{- $tag := required "image.tag must be set to an app commit SHA" .root.Values.image.tag -}}
 {{- if not (kindIs "string" $tag) -}}
 {{- fail "image.tag must be quoted in the values file, or YAML may read an all-digit SHA as a number" -}}
@@ -25,7 +25,7 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
 {{- end }}
 
 {{/* Pod security settings that satisfy the restricted Pod Security Standard. */}}
-{{- define "swiggy.containerSecurity" -}}
+{{- define "dishpatch.containerSecurity" -}}
 allowPrivilegeEscalation: false
 readOnlyRootFilesystem: true
 capabilities:

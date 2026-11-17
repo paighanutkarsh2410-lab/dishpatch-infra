@@ -5,14 +5,14 @@
 # scripts/monitoring-down.sh removes it again.
 #
 # Usage: ./scripts/monitoring-up.sh [git-revision]
-#        (default: the revision the swiggy app already follows, else main)
+#        (default: the revision the dishpatch app already follows, else main)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-REVISION="${1:-$(kubectl -n argocd get application swiggy -o jsonpath='{.spec.source.targetRevision}' 2>/dev/null || true)}"
+REVISION="${1:-$(kubectl -n argocd get application dishpatch -o jsonpath='{.spec.source.targetRevision}' 2>/dev/null || true)}"
 REVISION="${REVISION:-main}"
 
-kubectl config use-context kind-swiggy >/dev/null
+kubectl config use-context kind-dishpatch >/dev/null
 
 # Grafana's admin login, generated once and kept outside Git (.gitignore).
 GRAFANA="$ROOT/bootstrap/kind/grafana.env"
@@ -47,7 +47,7 @@ if [ "$established" != "True True " ]; then
   exit 1
 fi
 
-"$ROOT/scripts/swiggy-app.sh" "$REVISION" true
+"$ROOT/scripts/dishpatch-app.sh" "$REVISION" true
 
 # Argo CD can report Healthy before the operator has created Prometheus and
 # Alertmanager, so wait for the workloads themselves.

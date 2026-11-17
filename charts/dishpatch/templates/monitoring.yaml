@@ -6,7 +6,7 @@ metadata:
   name: backend
   labels:
     app.kubernetes.io/name: backend
-    {{- include "swiggy.labels" . | nindent 4 }}
+    {{- include "dishpatch.labels" . | nindent 4 }}
   annotations:
     # The CRD comes from the monitoring stack, which Argo CD may install
     # after this app on a fresh cluster.
@@ -26,7 +26,7 @@ kind: NetworkPolicy
 metadata:
   name: allow-backend-from-monitoring
   labels:
-    {{- include "swiggy.labels" . | nindent 4 }}
+    {{- include "dishpatch.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
@@ -44,24 +44,24 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: swiggy-alerts
+  name: dishpatch-alerts
   labels:
-    {{- include "swiggy.labels" . | nindent 4 }}
+    {{- include "dishpatch.labels" . | nindent 4 }}
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   groups:
-    - name: swiggy.availability
+    - name: dishpatch.availability
       rules:
-        - alert: SwiggyBackendDown
+        - alert: DishpatchBackendDown
           expr: sum(up{namespace="{{ .Release.Namespace }}", service="backend"}) == 0 or absent(up{namespace="{{ .Release.Namespace }}", service="backend"})
           for: 1m
           labels:
             severity: critical
           annotations:
             summary: No backend replica is answering Prometheus
-            description: Every swiggy backend target has been down for over a minute, so both websites' API calls are failing.
-        - alert: SwiggyBackendReplicasMissing
+            description: Every dishpatch backend target has been down for over a minute, so both websites' API calls are failing.
+        - alert: DishpatchBackendReplicasMissing
           expr: kube_deployment_status_replicas_available{namespace="{{ .Release.Namespace }}", deployment="backend"} < kube_deployment_spec_replicas{namespace="{{ .Release.Namespace }}", deployment="backend"}
           for: 5m
           labels:
@@ -69,29 +69,29 @@ spec:
           annotations:
             summary: Backend is running with fewer replicas than it should
             description: "{{ "{{" }} $value {{ "}}" }} backend replicas available; the Deployment asks for more."
-        - alert: SwiggyPodRestarting
+        - alert: DishpatchPodRestarting
           expr: increase(kube_pod_container_status_restarts_total{namespace="{{ .Release.Namespace }}"}[15m]) > 2
           labels:
             severity: warning
           annotations:
             summary: "Pod {{ "{{" }} $labels.pod {{ "}}" }} keeps restarting"
             description: "Container {{ "{{" }} $labels.container {{ "}}" }} restarted more than twice in 15 minutes."
-    - name: swiggy.api
+    - name: dishpatch.api
       rules:
-        - alert: SwiggyHighErrorRate
+        - alert: DishpatchHighErrorRate
           expr: |
-            sum(rate(swiggy_http_request_duration_seconds_count{namespace="{{ .Release.Namespace }}", status_code=~"5.."}[5m]))
-              / sum(rate(swiggy_http_request_duration_seconds_count{namespace="{{ .Release.Namespace }}"}[5m])) > 0.05
+            sum(rate(dishpatch_http_request_duration_seconds_count{namespace="{{ .Release.Namespace }}", status_code=~"5.."}[5m]))
+              / sum(rate(dishpatch_http_request_duration_seconds_count{namespace="{{ .Release.Namespace }}"}[5m])) > 0.05
           for: 5m
           labels:
             severity: critical
           annotations:
             summary: More than 5% of API requests are failing
             description: "{{ "{{" }} $value | humanizePercentage {{ "}}" }} of API requests returned a 5xx error over the last 5 minutes."
-        - alert: SwiggySlowApi
+        - alert: DishpatchSlowApi
           expr: |
             histogram_quantile(0.95,
-              sum by (le) (rate(swiggy_http_request_duration_seconds_bucket{namespace="{{ .Release.Namespace }}", route!="unmatched"}[5m]))
+              sum by (le) (rate(dishpatch_http_request_duration_seconds_bucket{namespace="{{ .Release.Namespace }}", route!="unmatched"}[5m]))
             ) > 1
           for: 10m
           labels:
@@ -104,11 +104,11 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: swiggy-dashboard
+  name: dishpatch-dashboard
   labels:
     grafana_dashboard: "1"
-    {{- include "swiggy.labels" . | nindent 4 }}
+    {{- include "dishpatch.labels" . | nindent 4 }}
 data:
-  swiggy.json: |
+  dishpatch.json: |
     {{- .Files.Get "files/dashboard.json" | nindent 4 }}
 {{- end }}

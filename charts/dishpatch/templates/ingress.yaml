@@ -5,9 +5,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: swiggy
+  name: dishpatch
   labels:
-    {{- include "swiggy.labels" . | nindent 4 }}
+    {{- include "dishpatch.labels" . | nindent 4 }}
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   rules:

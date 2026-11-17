@@ -5,10 +5,10 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-CHART="$ROOT/charts/swiggy"
+CHART="$ROOT/charts/dishpatch"
 SECRETS="$ROOT/bootstrap/aws/secrets.env"
-SSH_KEY="${SSH_KEY:-$HOME/.ssh/swiggy-aws}"
-SERVER_IP="${SWIGGY_SERVER_IP:-$(terraform -chdir="$ROOT/terraform/aws" output -raw server_public_ip)}"
+SSH_KEY="${SSH_KEY:-$HOME/.ssh/dishpatch-aws}"
+SERVER_IP="${DISHPATCH_SERVER_IP:-$(terraform -chdir="$ROOT/terraform/aws" output -raw server_public_ip)}"
 
 remote() { ssh -i "$SSH_KEY" -o BatchMode=yes "ec2-user@$SERVER_IP" "$@"; }
 
@@ -27,7 +27,7 @@ fi
 
 # 1. Namespace and Secret, which are not part of the chart.
 remote sudo k3s kubectl apply -f - < "$ROOT/bootstrap/namespace.yaml"
-kubectl create secret generic swiggy-secrets -n swiggy --from-env-file="$SECRETS" \
+kubectl create secret generic dishpatch-secrets -n dishpatch --from-env-file="$SECRETS" \
   --dry-run=client -o yaml | remote sudo k3s kubectl apply -f -
 
 # 2. The app. Host names come from the server IP, for example
@@ -35,16 +35,16 @@ kubectl create secret generic swiggy-secrets -n swiggy --from-env-file="$SECRETS
 IP_DASHED="${SERVER_IP//./-}"
 PARTNER_HOST="partner.$IP_DASHED.sslip.io"
 
-helm template swiggy "$CHART" --namespace swiggy \
+helm template dishpatch "$CHART" --namespace dishpatch \
   -f "$CHART/values-aws.yaml" \
   --set "ingress.partnerHost=$PARTNER_HOST" \
-  | remote sudo k3s kubectl apply -n swiggy -f -
+  | remote sudo k3s kubectl apply -n dishpatch -f -
 
-remote sudo k3s kubectl -n swiggy rollout status statefulset/postgres --timeout=300s
+remote sudo k3s kubectl -n dishpatch rollout status statefulset/postgres --timeout=300s
 for deployment in backend frontend partner; do
-  remote sudo k3s kubectl -n swiggy rollout status "deployment/$deployment" --timeout=300s
+  remote sudo k3s kubectl -n dishpatch rollout status "deployment/$deployment" --timeout=300s
 done
 
-remote sudo k3s kubectl -n swiggy get pods,ingress
+remote sudo k3s kubectl -n dishpatch get pods,ingress
 echo "Customer app:    http://$SERVER_IP  (or http://$IP_DASHED.sslip.io)"
 echo "Partner console: http://$PARTNER_HOST"

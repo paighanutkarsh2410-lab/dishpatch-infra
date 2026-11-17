@@ -1,27 +1,27 @@
-# Argo CD keeps the swiggy namespace of the local kind cluster in line with
-# charts/swiggy on the main branch, using values-kind.yaml.
+# Argo CD keeps the dishpatch namespace of the local kind cluster in line with
+# charts/dishpatch on the main branch, using values-kind.yaml.
 #   automated.prune:    objects removed from Git are removed from the cluster
 #   automated.selfHeal: manual changes in the cluster are reverted
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: swiggy
+  name: dishpatch
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: swiggy
+  project: dishpatch
   source:
-    repoURL: https://github.com/paighanutkarsh2410-lab/swiggy-devsecops-infra.git
+    repoURL: https://github.com/paighanutkarsh2410-lab/dishpatch-infra.git
     targetRevision: main
-    path: charts/swiggy
+    path: charts/dishpatch
     helm:
-      releaseName: swiggy
+      releaseName: dishpatch
       valueFiles:
         - values-kind.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: swiggy
+    namespace: dishpatch
   syncPolicy:
     automated:
       prune: true

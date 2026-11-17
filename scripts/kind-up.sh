@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Creates the local kind cluster (if needed), adds the namespace and secrets
 # that never live in Git, installs Argo CD and lets it deploy the app from
-# charts/swiggy.
+# charts/dishpatch.
 #
 # Usage: ./scripts/kind-up.sh [--monitoring] [git-revision]   (default: main)
 #
@@ -19,11 +19,11 @@ fi
 REVISION="${1:-main}"
 SECRETS="$ROOT/bootstrap/kind/secrets.env"
 
-if ! kind get clusters | grep -qx swiggy; then
+if ! kind get clusters | grep -qx dishpatch; then
   kind create cluster --config "$ROOT/kind/cluster.yaml" --wait 120s
 fi
 
-kubectl config use-context kind-swiggy >/dev/null
+kubectl config use-context kind-dishpatch >/dev/null
 
 # 1. Namespace and secrets. Generated once and kept outside Git (.gitignore).
 if [ ! -f "$SECRETS" ]; then
@@ -37,7 +37,7 @@ if [ ! -f "$SECRETS" ]; then
 fi
 
 kubectl apply -f "$ROOT/bootstrap/namespace.yaml"
-kubectl -n swiggy create secret generic swiggy-secrets --from-env-file="$SECRETS" \
+kubectl -n dishpatch create secret generic dishpatch-secrets --from-env-file="$SECRETS" \
   --dry-run=client -o yaml | kubectl apply -f -
 
 # 2. Argo CD, which then deploys and keeps syncing the app.
@@ -45,23 +45,23 @@ kubectl -n swiggy create secret generic swiggy-secrets --from-env-file="$SECRETS
 
 echo "Waiting for Argo CD to sync and the app to become healthy..."
 for _ in $(seq 1 60); do
-  sync="$(kubectl -n argocd get application swiggy -o jsonpath='{.status.sync.status}' 2>/dev/null || true)"
-  health="$(kubectl -n argocd get application swiggy -o jsonpath='{.status.health.status}' 2>/dev/null || true)"
+  sync="$(kubectl -n argocd get application dishpatch -o jsonpath='{.status.sync.status}' 2>/dev/null || true)"
+  health="$(kubectl -n argocd get application dishpatch -o jsonpath='{.status.health.status}' 2>/dev/null || true)"
   [ "$sync" = "Synced" ] && [ "$health" = "Healthy" ] && break
   sleep 5
 done
 echo "Argo CD application: sync=$sync health=$health"
 
-kubectl -n swiggy rollout status statefulset/postgres --timeout=180s
+kubectl -n dishpatch rollout status statefulset/postgres --timeout=180s
 for deployment in backend frontend partner; do
-  kubectl -n swiggy rollout status "deployment/$deployment" --timeout=180s
+  kubectl -n dishpatch rollout status "deployment/$deployment" --timeout=180s
 done
 
 if [ "$MONITORING" = true ]; then
   "$ROOT/scripts/monitoring-up.sh" "$REVISION"
 fi
 
-kubectl -n swiggy get pods -o wide
+kubectl -n dishpatch get pods -o wide
 echo "Customer app:    http://localhost:8081"
 echo "Partner console: http://localhost:8083"
 echo "Argo CD UI:      kubectl -n argocd port-forward svc/argocd-server 8443:443, then https://localhost:8443"

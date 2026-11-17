@@ -30,8 +30,8 @@ for attempt in $(seq 1 40); do
   sleep 5
 done
 
-( cd "$ROOT/ansible" && SWIGGY_SERVER_IP="$IP" ansible-playbook playbooks/site.yml --private-key "$SSH_KEY" )
-SWIGGY_SERVER_IP="$IP" SSH_KEY="$SSH_KEY" "$ROOT/scripts/aws-deploy.sh"
+( cd "$ROOT/ansible" && DISHPATCH_SERVER_IP="$IP" ansible-playbook playbooks/site.yml --private-key "$SSH_KEY" )
+DISHPATCH_SERVER_IP="$IP" SSH_KEY="$SSH_KEY" "$ROOT/scripts/aws-deploy.sh"
 
 echo
 echo "The app is live. The two website addresses are printed just above."

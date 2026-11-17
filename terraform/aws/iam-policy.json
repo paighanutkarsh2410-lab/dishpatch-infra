@@ -11,7 +11,7 @@
       }
     },
     {
-      "Sid": "ManageSwiggyNetworkAndServer",
+      "Sid": "ManageDishpatchNetworkAndServer",
       "Effect": "Allow",
       "Action": [
         "ec2:CreateVpc",

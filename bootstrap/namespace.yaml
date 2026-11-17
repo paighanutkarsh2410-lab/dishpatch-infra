@@ -1,9 +1,9 @@
 # Created before Argo CD or Helm deploy the app, together with the
-# swiggy-secrets Secret, which is never stored in Git.
+# dishpatch-secrets Secret, which is never stored in Git.
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: swiggy
+  name: dishpatch
   labels:
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/enforce-version: latest

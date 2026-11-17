@@ -36,7 +36,7 @@ Test accounts and orders were deleted afterwards.
 ### Terraform
 
 ```console
-$ terraform apply swiggy.tfplan
+$ terraform apply dishpatch.tfplan
 ...
 Apply complete! Resources: 14 added, 0 changed, 0 destroyed.
 
@@ -45,7 +45,7 @@ server_public_ip = "54.66.48.104"
 ssh_command = "ssh ec2-user@54.66.48.104"
 website_url = "http://54.66.48.104"
 
-$ aws ec2 describe-instances (swiggy-k3s-server)
+$ aws ec2 describe-instances (dishpatch-k3s-server)
 +-----------+-----------------------+
 |  IMDSv2   |  required             |
 |  Id       |  i-03a92201908686d93  |
@@ -60,10 +60,10 @@ $ aws ec2 describe-instances (swiggy-k3s-server)
 
 ```console
 $ ansible-playbook playbooks/site.yml          # first run
-swiggy-aws : ok=19   changed=15   unreachable=0   failed=0
+dishpatch-aws : ok=19   changed=15   unreachable=0   failed=0
 
 $ ansible-playbook playbooks/site.yml          # second run: nothing left to change
-swiggy-aws : ok=15   changed=0    unreachable=0   failed=0   skipped=1
+dishpatch-aws : ok=15   changed=0    unreachable=0   failed=0   skipped=1
 ```
 
 Verified on the server afterwards:
@@ -82,7 +82,7 @@ $ kubectl get nodes -o wide
 NAME                                             STATUS   ROLES           VERSION        OS-IMAGE
 ip-10-20-1-201.ap-southeast-2.compute.internal   Ready    control-plane   v1.36.6+k3s1   Amazon Linux 2023.12.20261102
 
-$ kubectl -n swiggy get pods,svc,ingress
+$ kubectl -n dishpatch get pods,svc,ingress
 NAME                            READY   STATUS    RESTARTS   AGE
 pod/backend-6fc768b676-4qljv    1/1     Running   0          24m
 pod/backend-6fc768b676-q4cfb    1/1     Running   0          24m
@@ -96,16 +96,16 @@ service/frontend   ClusterIP   10.43.34.191   8080/TCP
 service/postgres   ClusterIP   None           5432/TCP
 
 NAME                               CLASS     HOSTS   ADDRESS       PORTS
-ingress.networking.k8s.io/swiggy   traefik   *       10.20.1.201   80
+ingress.networking.k8s.io/dishpatch   traefik   *       10.20.1.201   80
 
-$ kubectl -n swiggy get networkpolicy
+$ kubectl -n dishpatch get networkpolicy
 NAME                          POD-SELECTOR
 allow-backend-from-frontend   app.kubernetes.io/name=backend
 allow-frontend                app.kubernetes.io/name=frontend
 allow-postgres-from-backend   app.kubernetes.io/name=postgres
 default-deny-ingress          <none>
 
-$ kubectl get namespace swiggy -o jsonpath='{.metadata.labels}'
+$ kubectl get namespace dishpatch -o jsonpath='{.metadata.labels}'
 "pod-security.kubernetes.io/enforce":"restricted"
 
 $ k3s secrets-encrypt status

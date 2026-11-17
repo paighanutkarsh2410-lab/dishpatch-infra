@@ -3,7 +3,7 @@
 
 image:
   registry: ghcr.io/paighanutkarsh2410-lab
-  # Commit SHA of swiggy-devsecops-app. All three images are built from the
+  # Commit SHA of dishpatch-app. All three images are built from the
   # same commit, so one tag covers them. CI proposes new tags as pull requests.
   tag: ""
   # sha256 digest of each image built from that commit, keyed by image name.
@@ -17,11 +17,11 @@ image:
 
 # Created outside Git by scripts/kind-up.sh or scripts/aws-deploy.sh, with
 # the keys DB_PASSWORD and JWT_SECRET.
-secretName: swiggy-secrets
+secretName: dishpatch-secrets
 
 database:
-  name: swiggy_db
-  user: swiggy_app
+  name: dishpatch_db
+  user: dishpatch_app
 
 postgres:
   image: postgres:16
@@ -33,7 +33,7 @@ postgres:
     limits: { cpu: 500m, memory: 512Mi }
 
 backend:
-  image: swiggy-devsecops-backend
+  image: dishpatch-backend
   replicas: 2
   resources:
     requests: { cpu: 50m, memory: 96Mi }
@@ -44,13 +44,13 @@ backend:
 web:
   frontend:
     description: Customer app
-    image: swiggy-devsecops-frontend
+    image: dishpatch-frontend
     replicas: 2
     # Set to expose the site on a node port, for example on kind.
     nodePort: null
   partner:
     description: Restaurant partner console
-    image: swiggy-devsecops-partner
+    image: dishpatch-partner
     replicas: 2
     nodePort: null
 

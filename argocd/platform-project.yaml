@@ -1,4 +1,4 @@
-# Cluster-wide tooling, currently the monitoring stack. Unlike the swiggy
+# Cluster-wide tooling, currently the monitoring stack. Unlike the dishpatch
 # project, this one may create cluster-scoped objects (CRDs, ClusterRoles),
 # because operators need them. It is limited to the official
 # prometheus-community chart repository plus this repository for settings,
@@ -12,7 +12,7 @@ spec:
   description: Cluster platform tooling (monitoring)
   sourceRepos:
     - https://prometheus-community.github.io/helm-charts
-    - https://github.com/paighanutkarsh2410-lab/swiggy-devsecops-infra.git
+    - https://github.com/paighanutkarsh2410-lab/dishpatch-infra.git
   destinations:
     - server: https://kubernetes.default.svc
       namespace: monitoring

@@ -3,9 +3,9 @@ kind: ConfigMap
 metadata:
   name: postgres-init
   labels:
-    {{- include "swiggy.labels" . | nindent 4 }}
+    {{- include "dishpatch.labels" . | nindent 4 }}
 data:
-  # Copy of backend/db/init.sql from swiggy-devsecops-app. It only runs when
+  # Copy of backend/db/init.sql from dishpatch-app. It only runs when
   # the database volume is first created.
   01-init.sql: |
     {{- .Files.Get "files/init.sql" | nindent 4 }}
@@ -16,7 +16,7 @@ metadata:
   name: postgres
   labels:
     app.kubernetes.io/name: postgres
-    {{- include "swiggy.labels" . | nindent 4 }}
+    {{- include "dishpatch.labels" . | nindent 4 }}
 spec:
   clusterIP: None
   selector:
@@ -32,7 +32,7 @@ metadata:
   name: postgres
   labels:
     app.kubernetes.io/name: postgres
-    {{- include "swiggy.labels" . | nindent 4 }}
+    {{- include "dishpatch.labels" . | nindent 4 }}
 spec:
   serviceName: postgres
   replicas: 1
@@ -43,7 +43,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: postgres
-        {{- include "swiggy.labels" . | nindent 8 }}
+        {{- include "dishpatch.labels" . | nindent 8 }}
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -84,7 +84,7 @@ spec:
           resources:
             {{- toYaml .Values.postgres.resources | nindent 12 }}
           securityContext:
-            {{- include "swiggy.containerSecurity" . | nindent 12 }}
+            {{- include "dishpatch.containerSecurity" . | nindent 12 }}
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data

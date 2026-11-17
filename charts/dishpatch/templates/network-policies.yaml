@@ -5,7 +5,7 @@ kind: NetworkPolicy
 metadata:
   name: default-deny-ingress
   labels:
-    {{- include "swiggy.labels" . | nindent 4 }}
+    {{- include "dishpatch.labels" . | nindent 4 }}
 spec:
   podSelector: {}
   policyTypes:
@@ -17,7 +17,7 @@ kind: NetworkPolicy
 metadata:
   name: allow-{{ $name }}
   labels:
-    {{- include "swiggy.labels" $ | nindent 4 }}
+    {{- include "dishpatch.labels" $ | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
@@ -34,7 +34,7 @@ kind: NetworkPolicy
 metadata:
   name: allow-backend-from-web
   labels:
-    {{- include "swiggy.labels" . | nindent 4 }}
+    {{- include "dishpatch.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
@@ -56,7 +56,7 @@ kind: NetworkPolicy
 metadata:
   name: allow-postgres-from-backend
   labels:
-    {{- include "swiggy.labels" . | nindent 4 }}
+    {{- include "dishpatch.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:

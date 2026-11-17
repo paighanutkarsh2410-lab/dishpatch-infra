@@ -8,16 +8,16 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
-kubectl config use-context kind-swiggy >/dev/null
+kubectl config use-context kind-dishpatch >/dev/null
 
 # 1. Switch off the app's ServiceMonitor, alert rules and dashboard first, so
-#    nothing in the swiggy namespace depends on the CRDs removed below.
-revision="$(kubectl -n argocd get application swiggy -o jsonpath='{.spec.source.targetRevision}')"
-"$ROOT/scripts/swiggy-app.sh" "$revision" false
+#    nothing in the dishpatch namespace depends on the CRDs removed below.
+revision="$(kubectl -n argocd get application dishpatch -o jsonpath='{.spec.source.targetRevision}')"
+"$ROOT/scripts/dishpatch-app.sh" "$revision" false
 echo "Waiting for Argo CD to remove the app's monitoring objects..."
 for _ in $(seq 1 36); do
-  if ! kubectl -n swiggy get servicemonitor backend >/dev/null 2>&1 \
-     && ! kubectl -n swiggy get configmap swiggy-dashboard >/dev/null 2>&1; then
+  if ! kubectl -n dishpatch get servicemonitor backend >/dev/null 2>&1 \
+     && ! kubectl -n dishpatch get configmap dishpatch-dashboard >/dev/null 2>&1; then
     break
   fi
   sleep 5

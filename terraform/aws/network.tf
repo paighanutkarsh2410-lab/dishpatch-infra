@@ -8,7 +8,7 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
 
   tags = {
-    Name = "swiggy-vpc"
+    Name = "dishpatch-vpc"
   }
 }
 
@@ -21,7 +21,7 @@ resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "swiggy-igw"
+    Name = "dishpatch-igw"
   }
 }
 
@@ -31,7 +31,7 @@ resource "aws_subnet" "public" {
   availability_zone = data.aws_availability_zones.available.names[0]
 
   tags = {
-    Name = "swiggy-public"
+    Name = "dishpatch-public"
   }
 }
 
@@ -44,7 +44,7 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name = "swiggy-public"
+    Name = "dishpatch-public"
   }
 }
 
@@ -54,12 +54,12 @@ resource "aws_route_table_association" "public" {
 }
 
 resource "aws_security_group" "server" {
-  name        = "swiggy-server"
-  description = "K3s server for the Swiggy DevSecOps app"
+  name        = "dishpatch-server"
+  description = "K3s server for the Dishpatch app"
   vpc_id      = aws_vpc.main.id
 
   tags = {
-    Name = "swiggy-server"
+    Name = "dishpatch-server"
   }
 }
 

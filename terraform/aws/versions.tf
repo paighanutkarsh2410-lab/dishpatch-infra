@@ -14,7 +14,7 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Project   = "swiggy-devsecops"
+      Project   = "dishpatch"
       ManagedBy = "terraform"
     }
   }

@@ -69,13 +69,13 @@ prometheus:
   prometheusSpec:
     retention: 12h
     retentionSize: 512MB
-    # Cluster targets every minute. The swiggy backend's ServiceMonitor keeps
+    # Cluster targets every minute. The dishpatch backend's ServiceMonitor keeps
     # its own 30-second interval so the dashboard's 1-minute rates still work.
     scrapeInterval: 60s
     evaluationInterval: 30s
     # Pick up ServiceMonitors and PrometheusRules from any namespace, not
-    # only ones carrying this Helm release's label. The swiggy chart ships
-    # its own in the swiggy namespace.
+    # only ones carrying this Helm release's label. The dishpatch chart ships
+    # its own in the dishpatch namespace.
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false
@@ -98,7 +98,7 @@ grafana:
     userKey: admin-user
     passwordKey: admin-password
   # Loads dashboards from ConfigMaps labelled grafana_dashboard=1 in any
-  # namespace, including the swiggy app's dashboard.
+  # namespace, including the dishpatch app's dashboard.
   sidecar:
     dashboards:
       enabled: true
@@ -138,7 +138,7 @@ grafana:
     # Soft heap limit; see bootstrap/argocd/kustomization.yaml.
     GOMEMLIMIT: 160MiB
   defaultDashboardsTimezone: browser
-  # Only the Swiggy dashboard is loaded. The chart's ~25 built-in Kubernetes
+  # Only the Dishpatch dashboard is loaded. The chart's ~25 built-in Kubernetes
   # dashboards cost Grafana memory and need the metrics switched off above.
   defaultDashboardsEnabled: false
   # Grafana's own metrics were 5,000 series; nothing here uses them.

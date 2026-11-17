@@ -48,6 +48,6 @@ monitoring=false
 if kubectl -n argocd get application monitoring >/dev/null 2>&1; then
   monitoring=true
 fi
-"$ROOT/scripts/swiggy-app.sh" "$REVISION" "$monitoring"
+"$ROOT/scripts/dishpatch-app.sh" "$REVISION" "$monitoring"
 
 echo "Argo CD is following $REVISION of this repository for the app (monitoring: $monitoring)."

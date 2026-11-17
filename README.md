@@ -1,12 +1,12 @@
-# Swiggy DevSecOps Infra
+# Dishpatch Infra
 
-[![Validate Infrastructure](https://github.com/paighanutkarsh2410-lab/swiggy-devsecops-infra/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/paighanutkarsh2410-lab/swiggy-devsecops-infra/actions/workflows/validate.yml)
+[![Validate Infrastructure](https://github.com/paighanutkarsh2410-lab/dishpatch-infra/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/paighanutkarsh2410-lab/dishpatch-infra/actions/workflows/validate.yml)
 ![Argo CD](https://img.shields.io/badge/GitOps-Argo%20CD-ef7b4d)
 ![Helm](https://img.shields.io/badge/Helm-chart-0f1689)
 ![Terraform](https://img.shields.io/badge/Terraform-AWS-7b42bc)
 ![Only signed images](https://img.shields.io/badge/deploys-only%20signed%20images-2e7d32)
 
-Infrastructure and deployment configuration for [swiggy-devsecops-app](https://github.com/paighanutkarsh2410-lab/swiggy-devsecops-app).
+Infrastructure and deployment configuration for [dishpatch-app](https://github.com/paighanutkarsh2410-lab/dishpatch-app).
 
 This repository is the GitOps source of truth: what is on `main` here is what runs. Argo CD watches it and keeps the cluster in line, so the Git history of this repo is the history of every deployment, and rolling back is a `git revert`.
 
@@ -18,24 +18,24 @@ This repository is the GitOps source of truth: what is on `main` here is what ru
 |---|---|
 | ![Argo CD application tree: Synced and Healthy](docs/images/argocd-app.png) | ![Grafana dashboard with live traffic](docs/images/grafana-dashboard.png) |
 
-The same app also runs on AWS: K3s on EC2, created by Terraform and configured by Ansible. [docs/aws-deployment.md](docs/aws-deployment.md) records a full deployment with screenshots, and the [app repo](https://github.com/paighanutkarsh2410-lab/swiggy-devsecops-app#screenshots) shows both websites.
+The same app also runs on AWS: K3s on EC2, created by Terraform and configured by Ansible. [docs/aws-deployment.md](docs/aws-deployment.md) records a full deployment with screenshots, and the [app repo](https://github.com/paighanutkarsh2410-lab/dishpatch-app#screenshots) shows both websites.
 
 ## Layout
 
 | Path | Purpose |
 |---|---|
-| `charts/swiggy` | Helm chart for the whole app: customer app, partner console, API, PostgreSQL, network policies, ingress |
-| `charts/swiggy/values-kind.yaml` | Local kind settings: image tag and digests, NodePorts |
-| `charts/swiggy/values-aws.yaml` | K3s on EC2 settings: image tag and digests, Traefik host routing |
+| `charts/dishpatch` | Helm chart for the whole app: customer app, partner console, API, PostgreSQL, network policies, ingress |
+| `charts/dishpatch/values-kind.yaml` | Local kind settings: image tag and digests, NodePorts |
+| `charts/dishpatch/values-aws.yaml` | K3s on EC2 settings: image tag and digests, Traefik host routing |
 | `argocd/` | Argo CD projects and Applications for the kind cluster: the app and the monitoring stack |
 | `monitoring/values-kind.yaml` | kube-prometheus-stack settings: Prometheus, Alertmanager, Grafana |
 | `monitoring/tests/` | promtool unit tests for the alert rules |
-| `bootstrap/namespace.yaml` | The `swiggy` namespace, created with the secrets before the app |
+| `bootstrap/namespace.yaml` | The `dishpatch` namespace, created with the secrets before the app |
 | `kind/cluster.yaml` | Local kind cluster definition |
 | `scripts/kind-up.sh` | Creates the cluster, installs Argo CD and lets it deploy the app; `--monitoring` adds the monitoring stack |
 | `scripts/argocd-up.sh` | Installs a pinned, checksum-verified Argo CD, trimmed by `bootstrap/argocd/kustomization.yaml`, and registers the app |
 | `scripts/monitoring-up.sh`, `monitoring-down.sh` | Add or remove the monitoring stack on kind |
-| `scripts/swiggy-app.sh` | Registers the app with Argo CD, with its monitoring objects on or off |
+| `scripts/dishpatch-app.sh` | Registers the app with Argo CD, with its monitoring objects on or off |
 | `scripts/aws-up.sh`, `aws-down.sh`, `aws-status.sh` | Create, destroy and check the whole AWS environment |
 | `scripts/aws-deploy.sh` | Renders the chart and deploys it to the K3s server on EC2 |
 | `docs/aws-deployment.md` | Record of a deployment to AWS, with screenshots |
@@ -97,13 +97,13 @@ To roll back, revert the commit on `main`. Argo CD returns the cluster to the pr
 
 - **Automated sync with prune:** objects added to or removed from the chart are added to or removed from the cluster.
 - **Self-heal:** manual changes are reverted. A `kubectl scale`, a deleted network policy or a swapped image is undone within seconds.
-- **A restricted project** (`argocd/project.yaml`): the app may only come from this repository, may only deploy into the `swiggy` namespace, and may not create cluster-wide objects, Roles, RoleBindings or ServiceAccounts.
+- **A restricted project** (`argocd/project.yaml`): the app may only come from this repository, may only deploy into the `dishpatch` namespace, and may not create cluster-wide objects, Roles, RoleBindings or ServiceAccounts.
 
-The namespace and the `swiggy-secrets` Secret are created by the bootstrap scripts and are not in Git. A tool such as Sealed Secrets or External Secrets would be the next step for managing secrets through Git as well.
+The namespace and the `dishpatch-secrets` Secret are created by the bootstrap scripts and are not in Git. A tool such as Sealed Secrets or External Secrets would be the next step for managing secrets through Git as well.
 
 ## Security
 
-- The `swiggy` namespace enforces the `restricted` Pod Security Standard.
+- The `dishpatch` namespace enforces the `restricted` Pod Security Standard.
 - Every container runs as non-root with a read-only root filesystem, no privilege escalation, all Linux capabilities dropped and the `RuntimeDefault` seccomp profile.
 - Network policies deny all incoming traffic by default. Only the two websites accept outside traffic, only they can reach the backend, and only the backend can reach PostgreSQL.
 - Service account tokens are not mounted, because no pod talks to the Kubernetes API.
@@ -111,7 +111,7 @@ The namespace and the `swiggy-secrets` Secret are created by the bootstrap scrip
 - Argo CD is installed from the commit of its signed `v3.5.7` release tag, and the manifest's SHA-256 is checked before it is applied.
 - The chart only accepts a quoted, full 40-character commit SHA as the image tag, so a mutable tag like `latest` cannot be deployed by mistake.
 - Every app image is also pinned by its sha256 digest (`image.digests`, required by `image.requireDigest`), so Kubernetes runs exactly the bytes that were signed even if a tag is pushed again.
-- The **Verify Image Signatures** CI job runs `cosign verify` and `cosign verify-attestation --type cyclonedx` on each digest. The Sigstore certificate must name `swiggy-devsecops-app/.github/workflows/ci.yml@refs/heads/main`, issued through GitHub's OIDC provider, so an unsigned image, or one signed by another repository, workflow or branch, cannot be deployed. The job is a required check on `main`.
+- The **Verify Image Signatures** CI job runs `cosign verify` and `cosign verify-attestation --type cyclonedx` on each digest. The Sigstore certificate must name `dishpatch-app/.github/workflows/ci.yml@refs/heads/main`, issued through GitHub's OIDC provider, so an unsigned image, or one signed by another repository, workflow or branch, cannot be deployed. The job is a required check on `main`.
 - Every GitHub Action is pinned to a commit SHA, and Dependabot proposes updated pins.
 - The EC2 server requires IMDSv2, encrypts its disk, and only accepts SSH and Kubernetes API traffic from one admin address.
 - Ansible disables root and password SSH logins, and turns on automatic security updates.
@@ -126,7 +126,7 @@ You need Docker, [kind](https://kind.sigs.k8s.io), kubectl and Helm.
 ./scripts/kind-up.sh
 ```
 
-The script creates a `swiggy` cluster, generates random secrets on first run, installs Argo CD and waits until Argo CD has deployed the app from `main` and it is healthy. This takes about 4 minutes on a fresh cluster. The customer app is then at http://localhost:8081 and the partner console at http://localhost:8083.
+The script creates a `dishpatch` cluster, generates random secrets on first run, installs Argo CD and waits until Argo CD has deployed the app from `main` and it is healthy. This takes about 4 minutes on a fresh cluster. The customer app is then at http://localhost:8081 and the partner console at http://localhost:8083.
 
 To try a branch before merging, pass it: `./scripts/kind-up.sh my-branch`. Argo CD then follows that branch instead of `main`.
 
@@ -163,7 +163,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.pas
 Check the app from the command line:
 
 ```bash
-kubectl -n argocd get application swiggy
+kubectl -n argocd get application dishpatch
 ```
 
 ### Monitoring
@@ -180,26 +180,26 @@ Monitoring is optional on kind. Turn it on and off with:
 - Every component has memory limits, and Prometheus keeps 12 hours of data.
 - The control plane parts kind does not expose are switched off, so they cannot raise false alerts.
 - The API server's own metrics, over half of all series, are not collected, and neither are Grafana's. Cluster targets are scraped every 60 seconds, the backend every 30.
-- Grafana loads only the Swiggy dashboard, reads its Prometheus datasource from config instead of a sidecar, and leaves alerting to Alertmanager.
+- Grafana loads only the Dishpatch dashboard, reads its Prometheus datasource from config instead of a sidecar, and leaves alerting to Alertmanager.
 
 While monitoring is on, the app's chart adds (on kind only):
 
 - A ServiceMonitor, so Prometheus scrapes the backend's `/metrics` every 30 seconds, and a network policy that lets only the `monitoring` namespace reach the backend's port.
-- Alert rules (`charts/swiggy/templates/monitoring.yaml`):
+- Alert rules (`charts/dishpatch/templates/monitoring.yaml`):
 
   | Alert | Fires when | Severity |
   |---|---|---|
-  | `SwiggyBackendDown` | No backend replica has answered Prometheus for 1 minute | critical |
-  | `SwiggyHighErrorRate` | Over 5% of API requests return 5xx for 5 minutes | critical |
-  | `SwiggySlowApi` | p95 response time is over 1 second for 10 minutes | warning |
-  | `SwiggyBackendReplicasMissing` | Fewer backend replicas are available than requested, for 5 minutes | warning |
-  | `SwiggyPodRestarting` | A container restarts more than twice in 15 minutes | warning |
+  | `DishpatchBackendDown` | No backend replica has answered Prometheus for 1 minute | critical |
+  | `DishpatchHighErrorRate` | Over 5% of API requests return 5xx for 5 minutes | critical |
+  | `DishpatchSlowApi` | p95 response time is over 1 second for 10 minutes | warning |
+  | `DishpatchBackendReplicasMissing` | Fewer backend replicas are available than requested, for 5 minutes | warning |
+  | `DishpatchPodRestarting` | A container restarts more than twice in 15 minutes | warning |
 
-- A Grafana dashboard, **Swiggy DevSecOps - Overview**: replicas up, request rate, 5xx rate, p95 response time, live partner consoles, requests by route, latency percentiles, responses by status code, order status changes, backend memory and restarts.
+- A Grafana dashboard, **Dishpatch - Overview**: replicas up, request rate, 5xx rate, p95 response time, live partner consoles, requests by route, latency percentiles, responses by status code, order status changes, backend memory and restarts.
 
   ![Grafana dashboard with live traffic on kind](docs/images/grafana-dashboard.png)
 
-CI renders the monitoring stack and validates it, checks the alert rules with `promtool check rules`, and runs `promtool test rules` on `monitoring/tests/swiggy-alerts-test.yaml`, which feeds the rules sample data and checks each alert fires, or stays quiet, when it should.
+CI renders the monitoring stack and validates it, checks the alert rules with `promtool check rules`, and runs `promtool test rules` on `monitoring/tests/dishpatch-alerts-test.yaml`, which feeds the rules sample data and checks each alert fires, or stays quiet, when it should.
 
 Open Grafana:
 
@@ -218,7 +218,7 @@ The AWS server has 2 GB of memory, which is not enough for the monitoring stack 
 To create a restaurant partner account (add `STAFF_ROLE=OWNER` for an owner):
 
 ```bash
-kubectl -n swiggy exec deploy/backend -- env \
+kubectl -n dishpatch exec deploy/backend -- env \
   STAFF_NAME="Spice Garden Staff" \
   STAFF_EMAIL="staff@example.com" \
   STAFF_PASSWORD="choose-a-password" \
@@ -229,7 +229,7 @@ kubectl -n swiggy exec deploy/backend -- env \
 To delete the cluster:
 
 ```bash
-kind delete cluster --name swiggy
+kind delete cluster --name dishpatch
 ```
 
 ## Deploy to AWS
@@ -250,7 +250,7 @@ Once the IAM user below is set up, three commands run everything from the reposi
 
 Add `-y` to `aws-up.sh` or `aws-down.sh` to skip the question. Each run of `aws-up.sh` sets the SSH and Kubernetes API rule to your current public IP, so run it again if your IP changes.
 
-You need the AWS CLI, Terraform, Ansible and kubectl, plus AWS credentials for an IAM user, not the root account. The scripts use the `swiggy` AWS profile and the SSH key `~/.ssh/swiggy-aws`, which `aws-up.sh` creates if it is missing. Set `AWS_PROFILE` or `SSH_KEY` to use others.
+You need the AWS CLI, Terraform, Ansible and kubectl, plus AWS credentials for an IAM user, not the root account. The scripts use the `dishpatch` AWS profile and the SSH key `~/.ssh/dishpatch-aws`, which `aws-up.sh` creates if it is missing. Set `AWS_PROFILE` or `SSH_KEY` to use others.
 
 The sections below explain each step the scripts run.
 
@@ -266,15 +266,15 @@ The sections below explain each step the scripts run.
 
 In the IAM console:
 
-1. **Policies → Create policy → JSON**, paste the file's contents and name it `swiggy-terraform`.
-2. **Users → Create user** named `swiggy-terraform`, with no console access. Attach the `swiggy-terraform` policy.
+1. **Policies → Create policy → JSON**, paste the file's contents and name it `dishpatch-terraform`.
+2. **Users → Create user** named `dishpatch-terraform`, with no console access. Attach the `dishpatch-terraform` policy.
 3. Open the user, then **Security credentials → Create access key → Command Line Interface**.
 
 On the machine that runs Terraform, store the key yourself. Never paste it into a chat, a file in this repo or a ticket.
 
 ```bash
-aws configure --profile swiggy
-export AWS_PROFILE=swiggy
+aws configure --profile dishpatch
+export AWS_PROFILE=dishpatch
 aws sts get-caller-identity
 ```
 
@@ -298,7 +298,7 @@ terraform apply
 Configure the server and install K3s:
 
 ```bash
-export SWIGGY_SERVER_IP="$(terraform output -raw server_public_ip)"
+export DISHPATCH_SERVER_IP="$(terraform output -raw server_public_ip)"
 cd ../../ansible
 ansible-playbook playbooks/site.yml
 ```
@@ -323,16 +323,16 @@ Terraform state is stored locally and is never committed. It describes your AWS 
 
 ## Deploying a new version
 
-Normally the app repo's CI opens the pull request for you (see [Delivery pipeline](#delivery-pipeline)). To deploy a version by hand, set `image.tag` to the app commit SHA, in quotes, and each entry under `image.digests` to that image's sha256 digest, in both `charts/swiggy/values-kind.yaml` and `charts/swiggy/values-aws.yaml`, then merge the change. CI checks that both files deploy the same images and that each one was signed by the app repo's CI, so only images built from the app's `main` branch can be deployed.
+Normally the app repo's CI opens the pull request for you (see [Delivery pipeline](#delivery-pipeline)). To deploy a version by hand, set `image.tag` to the app commit SHA, in quotes, and each entry under `image.digests` to that image's sha256 digest, in both `charts/dishpatch/values-kind.yaml` and `charts/dishpatch/values-aws.yaml`, then merge the change. CI checks that both files deploy the same images and that each one was signed by the app repo's CI, so only images built from the app's `main` branch can be deployed.
 
 ## Database schema
 
-`charts/swiggy/files/init.sql` is a copy of `backend/db/init.sql` from the app repo. It only runs when the database volume is first created.
+`charts/dishpatch/files/init.sql` is a copy of `backend/db/init.sql` from the app repo. It only runs when the database volume is first created.
 
 An existing database does not rerun `init.sql`. To upgrade one in place, run the app repo's migrations in order. Each is safe to run more than once:
 
 ```bash
-kubectl -n swiggy exec -i postgres-0 -- sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < backend/db/migrations/002_partner_console.sql
+kubectl -n dishpatch exec -i postgres-0 -- sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < backend/db/migrations/002_partner_console.sql
 ```
 
 On AWS this is never needed, because each `aws-up.sh` starts with a new database.

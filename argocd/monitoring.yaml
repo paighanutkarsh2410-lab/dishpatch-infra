@@ -19,7 +19,7 @@ spec:
         releaseName: kps
         valueFiles:
           - $values/monitoring/values-kind.yaml
-    - repoURL: https://github.com/paighanutkarsh2410-lab/swiggy-devsecops-infra.git
+    - repoURL: https://github.com/paighanutkarsh2410-lab/dishpatch-infra.git
       targetRevision: main
       ref: values
   destination:

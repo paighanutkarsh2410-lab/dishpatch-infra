@@ -1,21 +1,21 @@
-# Limits what the swiggy Application can do, so a bad commit in this repo
+# Limits what the dishpatch Application can do, so a bad commit in this repo
 # cannot touch anything outside the app:
 # - only this repository as a source
-# - only the swiggy namespace of the local cluster as a destination
+# - only the dishpatch namespace of the local cluster as a destination
 # - no cluster-wide objects (Namespaces, ClusterRoles, CRDs and so on)
 # - no RBAC objects inside the namespace either
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: swiggy
+  name: dishpatch
   namespace: argocd
 spec:
-  description: Swiggy DevSecOps demo
+  description: Dishpatch demo
   sourceRepos:
-    - https://github.com/paighanutkarsh2410-lab/swiggy-devsecops-infra.git
+    - https://github.com/paighanutkarsh2410-lab/dishpatch-infra.git
   destinations:
     - server: https://kubernetes.default.svc
-      namespace: swiggy
+      namespace: dishpatch
   clusterResourceWhitelist: []
   namespaceResourceBlacklist:
     - group: rbac.authorization.k8s.io

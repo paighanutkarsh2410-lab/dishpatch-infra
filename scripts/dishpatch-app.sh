@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Registers (or updates) the swiggy Argo CD Application on the kind cluster.
+# Registers (or updates) the dishpatch Argo CD Application on the kind cluster.
 #
-# Usage: ./scripts/swiggy-app.sh <git-revision> <true|false>
+# Usage: ./scripts/dishpatch-app.sh <git-revision> <true|false>
 #
 # The second argument switches the app's monitoring objects (ServiceMonitor,
 # alert rules, Grafana dashboard) on or off. They need the monitoring stack's
@@ -19,7 +19,7 @@ case "$MONITORING" in
 esac
 
 kubectl apply -f "$ROOT/argocd/project.yaml" >/dev/null
-kubectl patch --local -f "$ROOT/argocd/swiggy-kind.yaml" --type merge -o yaml -p "{
+kubectl patch --local -f "$ROOT/argocd/dishpatch-kind.yaml" --type merge -o yaml -p "{
   \"spec\": {\"source\": {
     \"targetRevision\": \"$REVISION\",
     \"helm\": {\"parameters\": [{\"name\": \"monitoring.enabled\", \"value\": \"$MONITORING\"}]}

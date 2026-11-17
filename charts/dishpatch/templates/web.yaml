@@ -8,7 +8,7 @@ metadata:
   name: {{ $name }}
   labels:
     app.kubernetes.io/name: {{ $name }}
-    {{- include "swiggy.labels" $ | nindent 4 }}
+    {{- include "dishpatch.labels" $ | nindent 4 }}
 spec:
   {{- if $site.nodePort }}
   type: NodePort
@@ -29,7 +29,7 @@ metadata:
   name: {{ $name }}
   labels:
     app.kubernetes.io/name: {{ $name }}
-    {{- include "swiggy.labels" $ | nindent 4 }}
+    {{- include "dishpatch.labels" $ | nindent 4 }}
 spec:
   replicas: {{ $site.replicas }}
   selector:
@@ -39,7 +39,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: {{ $name }}
-        {{- include "swiggy.labels" $ | nindent 8 }}
+        {{- include "dishpatch.labels" $ | nindent 8 }}
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -50,7 +50,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: {{ $name }}
-          image: {{ include "swiggy.image" (dict "root" $ "name" $site.image) }}
+          image: {{ include "dishpatch.image" (dict "root" $ "name" $site.image) }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           ports:
             - name: http
@@ -69,7 +69,7 @@ spec:
           resources:
             {{- toYaml $.Values.webResources | nindent 12 }}
           securityContext:
-            {{- include "swiggy.containerSecurity" $ | nindent 12 }}
+            {{- include "dishpatch.containerSecurity" $ | nindent 12 }}
           volumeMounts:
             # nginx-unprivileged keeps its pid file and caches in /tmp.
             - name: tmp

@@ -3,7 +3,7 @@ data "aws_ssm_parameter" "al2023_ami" {
 }
 
 resource "aws_key_pair" "admin" {
-  key_name   = "swiggy-admin"
+  key_name   = "dishpatch-admin"
   public_key = var.ssh_public_key
 }
 
@@ -34,6 +34,6 @@ resource "aws_instance" "server" {
   }
 
   tags = {
-    Name = "swiggy-k3s-server"
+    Name = "dishpatch-k3s-server"
   }
 }
